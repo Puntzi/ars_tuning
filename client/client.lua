@@ -1,46 +1,20 @@
-local Config = require "config"
+local QBCore = exports['qb-core']:GetCoreObject()
 
 
-local points = {}
-points.workshops = {}
+RegisterCommand(Config.Command, function()
+    local playerPed = cache.ped
+    local isAdmin = lib.callback.await('ars_tuning:isAdmin', false, GetPlayerServerId(PlayerId()))
 
-for i = 1, #Config.WorkShops do
-    local cfg = Config.WorkShops[i]
-
-    if cfg.blip.enable then
-        local blip = AddBlipForCoord(cfg.pos)
-
-        SetBlipSprite(blip, cfg.blip.type)
-        SetBlipDisplay(blip, 6)
-        SetBlipScale(blip, cfg.blip.scale)
-        SetBlipColour(blip, cfg.blip.color)
-        SetBlipAsShortRange(blip, true)
-
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentString(cfg.blip.name)
-        EndTextCommandSetBlipName(blip)
+    if not cache.vehicle then
+        QBCore.Functions.Notify("No estás en ningun vehículo", "error", 5000)
+        return 
     end
 
-    points.workshops[i] = lib.points.new({
-        coords = cfg.pos,
-        distance = 8,
-        onEnter = function(self)
-            if cache.vehicle and hasAccess(cfg.job) then
-                lib.showTextUI("[E] - open workshop")
-            end
-        end,
-        onExit = function(self)
-            lib.hideTextUI()
-        end,
-        nearby = function(self)
-            if cache.vehicle and hasAccess(cfg.job) then
-                DrawMarker(0, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.8, 0.8, 0.8,
-                    199, 208, 209, 100, false, true, 2, nil, nil, false)
-                if self.currentDistance < 1 and IsControlJustReleased(0, 38) then
-                    openTuningMenu()
-                    currentVehProperties.old = getVehicleProperties(cache.vehicle)
-                end
-            end
-        end
-    })
-end
+    if not isAdmin then
+        QBCore.Functions.Notify("No eres admin", "error", 5000)
+        return 
+    end
+
+    openTuningMenu()
+    currentVehProperties.old = getVehicleProperties(cache.vehicle)
+end)

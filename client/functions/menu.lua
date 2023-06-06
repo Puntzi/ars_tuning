@@ -2227,7 +2227,6 @@ local function openEstethicsMenu()
 end
 
 function openTuningMenu()
-    lib.hideTextUI()
     lib.hideContext()
 
     local vehicle = cache.vehicle
